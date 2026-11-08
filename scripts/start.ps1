@@ -6,7 +6,7 @@ foreach($port in @(8180,8211,8212,8213,8214,8215,8216,8217,8762,8889)) {if(Get-N
 if(-not $SkipBuild){ & mvn '-B' 'verify'; if($LASTEXITCODE -ne 0){throw 'Échec compilation/tests'} }
 New-Item -ItemType Directory -Force -Path '.run' | Out-Null
 function Start-Module($name){
- $jar=Join-Path $projectRoot "Backend/$name/target/$name-1.0.0-SNAPSHOT.jar"
+ $jar=[IO.Path]::GetFullPath((Join-Path $projectRoot "Backend/$name/target/$name-1.0.0-SNAPSHOT.jar"))
  $proc=Start-Process -FilePath 'java' -ArgumentList @('-Xms24m','-Xmx160m','-XX:ActiveProcessorCount=2','-jar',('"'+$jar+'"')) -WindowStyle Hidden -WorkingDirectory $projectRoot -PassThru -RedirectStandardOutput ".run/$name.log" -RedirectStandardError ".run/$name.err.log"
  @{id=$proc.Id;jar=$jar}|ConvertTo-Json -Compress|Add-Content '.run/processes.jsonl'
 }

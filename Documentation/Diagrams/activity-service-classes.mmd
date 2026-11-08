@@ -1,0 +1,12 @@
+classDiagram
+class ActivityEmbedding {
+  +UUID id
+  +String modelVersion
+  +List~Float~ vector
+}
+class Recommendation {
+  +Instant startsAt
+  +Double exposureScore
+  +String explanation
+}
+ActivityEmbedding --> Recommendation : calcul explique

@@ -1,0 +1,1612 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MétéoSentinel — contrats prévus après validation",
+    "version": "1.0.0-design",
+    "description": "S4 : seuls /design et Actuator sont implémentés. Les routes métier ci-dessous renvoient 501. Le profil local est sans authentification ; la cible applique JWT et autorisations serveur."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8180",
+      "description": "Gateway local"
+    }
+  ],
+  "paths": {
+    "/api/weather/{city}": {
+      "get": {
+        "summary": "Données datées et provenance",
+        "tags": [
+          "Weather"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reading"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource absente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/weather/{city}/history": {
+      "get": {
+        "summary": "Versions et historique",
+        "tags": [
+          "Weather"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reading"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/forecasts/{city}": {
+      "get": {
+        "summary": "Données datées et provenance",
+        "tags": [
+          "Forecast"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reading"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource absente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/forecasts/{city}/runs": {
+      "get": {
+        "summary": "Versions et historique",
+        "tags": [
+          "Forecast"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reading"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/air-quality/{city}": {
+      "get": {
+        "summary": "Données datées et provenance",
+        "tags": [
+          "Air Quality"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reading"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource absente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/air-quality/{city}/history": {
+      "get": {
+        "summary": "Versions et historique",
+        "tags": [
+          "Air Quality"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Reading"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "Profil du sub authentifié",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource absente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED"
+      }
+    },
+    "/api/users/me/preferences": {
+      "put": {
+        "summary": "Remplacer ses préférences",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preference"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Preference"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/consent": {
+      "delete": {
+        "summary": "Retirer son consentement",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Retiré sans contenu"
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED"
+      }
+    },
+    "/api/activities/search": {
+      "post": {
+        "summary": "Recherche Qdrant sur catalogue",
+        "tags": [
+          "Activity"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Candidate"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activities/recommendations": {
+      "post": {
+        "summary": "Créneaux expliqués après contraintes numériques",
+        "tags": [
+          "Activity"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Recommendation"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données insuffisantes ou contraintes impossibles",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dépendance indisponible",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/me": {
+      "get": {
+        "summary": "Alertes de l’utilisateur authentifié",
+        "tags": [
+          "Alert"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Alert"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED"
+      }
+    },
+    "/api/alerts/subscriptions": {
+      "post": {
+        "summary": "Créer un abonnement consenti",
+        "tags": [
+          "Alert"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Créé, Location retournée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "URI de la ressource créée",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflit ou doublon",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Subscription"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/alerts/{id}/ack": {
+      "patch": {
+        "summary": "Acquitter une alerte possédée",
+        "tags": [
+          "Alert"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alert"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accès refusé",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource absente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/datahub/quality": {
+      "get": {
+        "summary": "Rapport administrateur, autorisation métier à implémenter",
+        "tags": [
+          "DataHub"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accès refusé",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données insuffisantes ou contraintes impossibles",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/datahub/forecast-errors": {
+      "get": {
+        "summary": "Rapport administrateur, autorisation métier à implémenter",
+        "tags": [
+          "DataHub"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accès refusé",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données insuffisantes ou contraintes impossibles",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    },
+    "/api/datahub/events": {
+      "get": {
+        "summary": "Rapport administrateur, autorisation métier à implémenter",
+        "tags": [
+          "DataHub"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Résultat expliqué",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrées invalides",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT absent ou invalide",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Accès refusé",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données insuffisantes ou contraintes impossibles",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "S4 : endpoint métier prévu, non implémenté",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-stage": "DESIGN_NOT_IMPLEMENTED",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": "string"
+          }
+        }
+      },
+      "Reading": {
+        "type": "object",
+        "required": [
+          "cityCode",
+          "validAt",
+          "fetchedAt",
+          "source"
+        ],
+        "properties": {
+          "cityCode": {
+            "type": "string"
+          },
+          "validAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "temperatureC": {
+            "type": "number",
+            "nullable": true
+          },
+          "windKmh": {
+            "type": "number",
+            "nullable": true
+          },
+          "humidityPct": {
+            "type": "number",
+            "nullable": true
+          },
+          "europeanAqi": {
+            "type": "number",
+            "nullable": true
+          },
+          "pm25": {
+            "type": "number",
+            "nullable": true
+          },
+          "qualityFlags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": [
+          "query",
+          "cityCode"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "cityCode": {
+            "type": "string",
+            "enum": [
+              "TUNIS",
+              "SFAX",
+              "SOUSSE"
+            ]
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "string"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5
+          }
+        }
+      },
+      "RecommendationRequest": {
+        "type": "object",
+        "required": [
+          "cityCode",
+          "activityCode",
+          "durationHours"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "cityCode": {
+            "type": "string",
+            "enum": [
+              "TUNIS",
+              "SFAX",
+              "SOUSSE"
+            ]
+          },
+          "activityCode": {
+            "type": "string",
+            "enum": [
+              "WALK",
+              "RUN",
+              "CYCLE"
+            ]
+          },
+          "durationHours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "startsAfter": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Recommendation": {
+        "type": "object",
+        "required": [
+          "startsAt",
+          "endsAt",
+          "explanation",
+          "rulesVersion",
+          "dataSources"
+        ],
+        "properties": {
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exposureScore": {
+            "type": "number",
+            "description": "Heuristique versionnée, pas une probabilité sanitaire"
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "rulesVersion": {
+            "type": "string"
+          },
+          "dataSources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "activityCode": {
+            "type": "string"
+          },
+          "similarity": {
+            "type": "number",
+            "description": "Similarité vectorielle, pas une sécurité météo"
+          },
+          "embeddingVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "Preference": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "favoriteCities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxWindKmh": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 150
+          },
+          "maxEuropeanAqi": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 500
+          },
+          "notifyEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "required": [
+          "cityCode",
+          "activityCode",
+          "consentVersion"
+        ],
+        "properties": {
+          "cityCode": {
+            "type": "string"
+          },
+          "activityCode": {
+            "type": "string"
+          },
+          "consentVersion": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "number"
+          }
+        }
+      },
+      "Alert": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cityCode": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "HIGH",
+              "UNKNOWN"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ACKNOWLEDGED",
+              "EXPIRED"
+            ]
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/Preference"
+          }
+        }
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "referenceKind": {
+            "type": "string",
+            "enum": [
+              "OBSERVATION",
+              "REANALYSIS",
+              "NONE"
+            ]
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "completeness": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "PARTIAL",
+              "UNKNOWN"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

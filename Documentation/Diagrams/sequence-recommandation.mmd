@@ -1,0 +1,30 @@
+sequenceDiagram
+ actor U as Utilisateur
+ participant FE as Frontend
+ participant GW as Gateway
+ participant A as Activity
+ participant F as Forecast
+ participant W as Weather
+ participant AQ as AirQuality
+ participant US as User
+ U->>FE: Ville, activité et durée
+ FE->>GW: GET /api/activities/recommendations + JWT si connecté
+ GW->>A: Requête routée
+ par Prévisions
+  A->>F: GET /api/forecast/{city}/hourly
+  F-->>A: Version et heures
+ and Météo courante
+  A->>W: GET /api/weather/{city}
+  W-->>A: Conditions et provenance
+ and Qualité de l’air
+  A->>AQ: GET /api/air-quality/{city}
+  AQ-->>A: Indice et échelle
+ end
+ opt Personnalisation autorisée
+  A->>US: Préférences de l’utilisateur autorisé
+  US-->>A: Profil et villes favorites
+ end
+ A->>A: Vérifier fraîcheur et fenêtres continues
+ A-->>GW: Classement et explications ou état incomplet
+ GW-->>FE: Réponse JSON
+ FE-->>U: Créneaux expliqués

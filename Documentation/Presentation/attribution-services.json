@@ -1,0 +1,278 @@
+{
+  "project": "MétéoSentinel",
+  "subtitle": "Météo, qualité de l’air et décisions personnalisées",
+  "stage": "Conception S4",
+  "sourceBrief": "Validation1_Grille_Evaluation.pdf + consignes Blackboard S4",
+  "sharedChat": "https://chatgpt.com/share/6af0eae0-5c38-83ea-9eff-722d1b9998e5",
+  "services": [
+    {
+      "name": "Weather",
+      "id": "weather-service",
+      "owner": "Nour Maroufi",
+      "color": "#438DDF",
+      "database": "weather_db",
+      "engine": "PostgreSQL",
+      "purpose": "Acquérir et historiser les conditions météo courantes.",
+      "classes": [
+        [
+          "WeatherSnapshot",
+          "id : UUID",
+          "cityCode : String",
+          "fetchedAt : Instant"
+        ],
+        [
+          "WeatherReading",
+          "temperatureC : Double",
+          "windKmh : Double",
+          "humidityPct : Double"
+        ]
+      ],
+      "relation": "1 contient 1",
+      "api": [
+        [
+          "GET /api/weather/{city}",
+          "200, 400, 503"
+        ],
+        [
+          "GET /api/weather/{city}/history",
+          "200, 400"
+        ]
+      ],
+      "sync": "Appelé par Activity et Alert",
+      "event": "Publie WeatherUpdated",
+      "data": "Données courantes modélisées, provenance, heure de récupération et historique.",
+      "advanced": "Clé de déduplication, cache, timeout et traçabilité du fournisseur.",
+      "speech": "Je suis Nour Maroufi et je porte Weather Service. Il gère les conditions courantes d’une ville, avec température, humidité et vent. WeatherSnapshot porte la provenance et la date de récupération, et contient les valeurs météo. Le service possède exclusivement weather_db. Activity et Alert le consultent par REST. Après une mise à jour validée, il publie WeatherUpdated pour déclencher les traitements asynchrones. Les appels au fournisseur utilisent un timeout et un cache. Le jeu de données conserve sa nature modélisée, sa source et son horodatage. Une panne produit un état indisponible plutôt qu’une météo artificiellement rassurante."
+    },
+    {
+      "name": "Forecast",
+      "id": "forecast-service",
+      "owner": "Dhia Borzli",
+      "color": "#24BFA7",
+      "database": "forecast_db",
+      "engine": "MongoDB",
+      "purpose": "Servir les prévisions horaires et préserver leurs versions.",
+      "classes": [
+        [
+          "ForecastRun",
+          "id : UUID",
+          "cityCode : String",
+          "issuedAt : Instant ?"
+        ],
+        [
+          "ForecastHour",
+          "validAt : Instant",
+          "rainMm : Double",
+          "apparentC : Double"
+        ]
+      ],
+      "relation": "1 contient plusieurs",
+      "api": [
+        [
+          "GET /api/forecasts/{city}",
+          "200, 400, 404, 503"
+        ],
+        [
+          "GET /api/forecasts/{city}/runs",
+          "200, 400, 503"
+        ]
+      ],
+      "sync": "Répond aux requêtes Activity",
+      "event": "Publie ForecastUpdated",
+      "data": "Prévisions horaires et quotidiennes, versions collectées, source et horizon.",
+      "advanced": "Distinguer issuedAt, validAt et fetchedAt pour éviter les fuites temporelles.",
+      "speech": "Je suis Dhia Borzli et je porte Forecast Service. Il expose les prévisions horaires et quotidiennes et les conserve dans forecast_db. Un ForecastRun regroupe plusieurs ForecastHour. Nous distinguons l’heure de collecte, l’heure de validité et l’heure d’émission quand le fournisseur la fournit. Activity consulte les prévisions par REST pour comparer des fenêtres de sortie. À chaque nouvelle version, le service publie ForecastUpdated. DataHub pourra ainsi évaluer la prévision telle qu’elle était disponible à un instant donné, sans la remplacer après coup par une version plus récente. La gestion du quota et du cache protège le fournisseur."
+    },
+    {
+      "name": "Alert",
+      "id": "alert-service",
+      "owner": "Mohamed Hedi Bejaoui",
+      "color": "#E9A34B",
+      "database": "alert_db",
+      "engine": "Redis",
+      "purpose": "Classifier les situations et gérer le cycle de vie des alertes.",
+      "classes": [
+        [
+          "AlertRule",
+          "id : UUID",
+          "ruleVersion : String",
+          "threshold : Double"
+        ],
+        [
+          "WeatherAlert",
+          "id : UUID",
+          "level : AlertLevel",
+          "status : AlertStatus"
+        ]
+      ],
+      "relation": "1 déclenche plusieurs",
+      "api": [
+        [
+          "GET /api/alerts/me",
+          "200, 401"
+        ],
+        [
+          "POST /api/alerts/subscriptions",
+          "201, 400, 401, 409"
+        ]
+      ],
+      "sync": "Consulte User pour les consentements",
+      "event": "Consomme WeatherUpdated / ForecastUpdated",
+      "data": "Règles, niveaux, alertes actives et historique des tentatives de notification.",
+      "advanced": "Classification explicable et versionnée, déduplication et acquittement après écriture.",
+      "speech": "Je suis Mohamed Hedi Bejaoui et je porte Alert Service. Sa responsabilité est de classifier une situation à partir de règles explicables et versionnées, puis de gérer une alerte. Une AlertRule peut déclencher plusieurs WeatherAlert dans le temps. La base alert_db conserve les règles, les alertes et leurs états. Le service consomme WeatherUpdated et ForecastUpdated par RabbitMQ. Il consulte User par REST pour appliquer les préférences et les consentements. Un même événement ne doit pas créer deux alertes identiques. Les niveaux sont pédagogiques et ne se présentent pas comme une vigilance officielle ou un modèle d’IA déjà entraîné."
+    },
+    {
+      "name": "Air Quality",
+      "id": "air-quality-service",
+      "owner": "Kaouther Halouti",
+      "color": "#8D78DB",
+      "database": "air_quality_db",
+      "engine": "MySQL",
+      "purpose": "Fournir la pollution prévue et son indice documenté.",
+      "classes": [
+        [
+          "AirQualitySample",
+          "id : UUID",
+          "cityCode : String",
+          "validAt : Instant"
+        ],
+        [
+          "AirQualityIndex",
+          "pm25 : Double",
+          "pm10 : Double",
+          "indexType : String"
+        ]
+      ],
+      "relation": "1 expose 1",
+      "api": [
+        [
+          "GET /api/air-quality/{city}",
+          "200, 400, 503"
+        ],
+        [
+          "GET /api/air-quality/{city}/history",
+          "200, 400"
+        ]
+      ],
+      "sync": "Fournit un indicateur à Activity",
+      "event": "Publie AirQualityUpdated",
+      "data": "Concentrations en µg/m³, indice choisi, origine CAMS, validité et historique.",
+      "advanced": "Contrôle des unités, distinction entre données modélisées et mesures de station.",
+      "speech": "Je suis Kaouther Halouti et je porte Air Quality Service. Il fournit les concentrations prévues de PM2.5 et PM10 ainsi qu’un indice dont nous conservons le type et l’échelle. Les données sont modélisées par CAMS via Open-Meteo, et ne sont pas présentées comme des mesures d’une station locale. Le service possède air_quality_db. Activity le consulte par REST avant de recommander une activité extérieure. Après validation des unités, des dates et des valeurs manquantes, il publie AirQualityUpdated. Nous évitons de mélanger les échelles d’indice et rendons la provenance visible pour pouvoir expliquer les recommandations."
+    },
+    {
+      "name": "User",
+      "id": "user-service",
+      "owner": "Ahmed Ben Mahmoud",
+      "color": "#D86B62",
+      "database": "user_db",
+      "engine": "MariaDB",
+      "purpose": "Gérer profils métier, villes favorites et consentements.",
+      "classes": [
+        [
+          "UserProfile",
+          "subjectId : String",
+          "locale : String",
+          "units : String"
+        ],
+        [
+          "CityPreference",
+          "cityCode : String",
+          "activity : String",
+          "notifyEnabled : Boolean"
+        ]
+      ],
+      "relation": "1 possède plusieurs",
+      "api": [
+        [
+          "GET /api/users/me",
+          "200, 401, 404"
+        ],
+        [
+          "PUT /api/users/me/preferences",
+          "200, 400, 401"
+        ]
+      ],
+      "sync": "Répond à Alert et Activity",
+      "event": "Publie PreferencesChanged",
+      "data": "Profil métier, favoris et préférences rattachés au sub Keycloak, sans mot de passe.",
+      "advanced": "Autorisation par propriétaire, consentement explicite et séparation identité / métier.",
+      "speech": "Je suis Ahmed Ben Mahmoud et je porte User Service. Keycloak reste responsable de l’authentification, des identifiants et des tokens. Mon service conserve le profil métier, les villes favorites, les unités et les préférences de notification dans user_db. UserProfile est rattaché au subjectId du token et possède plusieurs CityPreference. Les routes me utilisent l’identité validée côté serveur pour empêcher l’accès au profil d’un autre utilisateur. Alert et Activity consultent les préférences nécessaires par REST. Une modification publie PreferencesChanged. Un retrait de consentement doit être vérifié au moment d’un envoi et pas seulement lors de sa planification."
+    },
+    {
+      "name": "Activity",
+      "id": "activity-service",
+      "owner": "Mohamed Aziz Sayhi",
+      "color": "#3B9BA7",
+      "database": "activity_db",
+      "engine": "Qdrant (vectoriel)",
+      "purpose": "Rechercher des activités et expliquer les créneaux adaptés.",
+      "classes": [
+        [
+          "ActivityEmbedding",
+          "id : UUID",
+          "modelVersion : String",
+          "vector : List<Float>"
+        ],
+        [
+          "Recommendation",
+          "startsAt : Instant",
+          "exposureScore : Double",
+          "explanation : String"
+        ]
+      ],
+      "relation": "Recherche puis contraintes numériques",
+      "api": [
+        [
+          "POST /api/activities/search",
+          "200, 400, 401, 503"
+        ],
+        [
+          "POST /api/activities/recommendations",
+          "200, 400, 401, 422, 503"
+        ]
+      ],
+      "sync": "Agrège Forecast, Weather, Air Quality et User",
+      "event": "Publie RecommendationComputed",
+      "data": "Demandes, résultats et provenance des entrées, sous son propre schéma.",
+      "advanced": "Classement multicritère, continuité des heures et explications des facteurs dominants.",
+      "speech": "Je suis Mohamed Aziz Sayhi. Activity utilise Qdrant pour retrouver des activités pertinentes à partir d’un texte et de préférences. Chaque vecteur porte un modèle et une version. La similarité ne mesure pas la sécurité : les contraintes météo et AQI sont évaluées numériquement ensuite. Activity appelle Weather, Forecast, Air Quality et User via OpenFeign. Une dépendance indispensable manquante donne 503. Le squelette démarre ; la recherche et le métier seront développés après validation."
+    }
+  ],
+  "common": {
+    "name": "DataHub",
+    "id": "datahub-service",
+    "owner": "Toute l’équipe",
+    "presenter": "Kaouther Halouti",
+    "database": "datahub_db",
+    "engine": "ClickHouse",
+    "purpose": "Historiser les événements et produire des rapports de qualité et d’évaluation.",
+    "classes": [
+      [
+        "EventRecord",
+        "eventId : UUID",
+        "eventType : String",
+        "validAt : Instant"
+      ],
+      [
+        "QualityReport",
+        "recordId : UUID",
+        "checkCode : String",
+        "result : CheckResult"
+      ]
+    ],
+    "api": [
+      [
+        "GET /api/datahub/quality",
+        "200, 401, 403"
+      ],
+      [
+        "GET /api/datahub/forecast-error",
+        "200, 400, 401"
+      ]
+    ],
+    "event": "Consomme WeatherUpdated, ForecastUpdated, AirQualityUpdated",
+    "advanced": "Projection analytique autonome, ingestion idempotente, rejeu et jointure temporelle."
+  }
+}

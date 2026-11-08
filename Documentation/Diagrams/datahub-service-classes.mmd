@@ -1,0 +1,12 @@
+classDiagram
+class EventRecord {
+  +UUID eventId
+  +String eventType
+  +Instant validAt
+}
+class QualityReport {
+  +UUID recordId
+  +String checkCode
+  +CheckResult result
+}
+EventRecord --> QualityReport : associe

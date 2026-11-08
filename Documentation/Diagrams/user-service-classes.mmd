@@ -1,0 +1,12 @@
+classDiagram
+class UserProfile {
+  +String subjectId
+  +String locale
+  +String units
+}
+class CityPreference {
+  +String cityCode
+  +String activity
+  +Boolean notifyEnabled
+}
+UserProfile "1" --> "*" CityPreference : contient

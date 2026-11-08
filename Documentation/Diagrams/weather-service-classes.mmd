@@ -1,0 +1,12 @@
+classDiagram
+class WeatherSnapshot {
+  +UUID id
+  +String cityCode
+  +Instant fetchedAt
+}
+class WeatherReading {
+  +Double temperatureC
+  +Double windKmh
+  +Double humidityPct
+}
+WeatherSnapshot "1" --> "1" WeatherReading : contient

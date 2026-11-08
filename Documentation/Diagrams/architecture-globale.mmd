@@ -1,0 +1,32 @@
+flowchart TB
+ U[Utilisateur] --> F[Frontend React]
+ F -->|OIDC code + PKCE| K[Keycloak]
+ F -->|HTTP + JWT| G[Spring Cloud Gateway]
+ G -. découverte .-> E[Eureka]
+ C[Config Server] -. configuration .-> G
+ C -. configuration .-> M
+ K -. JWKS / validation JWT .-> G
+ subgraph M[Services Spring Boot — bases exclusives]
+ W[Weather / Nour] --> WP[(PostgreSQL)]
+ FC[Forecast / Dhia] --> FM[(MongoDB)]
+ AL[Alert / Mohamed Hedi] --> AR[(Redis AOF)]
+ AQ[Air Quality / Kaouther] --> AM[(MySQL)]
+ US[User / Ahmed] --> UM[(MariaDB)]
+ AC[Activity / Mohamed Aziz] --> AV[(Qdrant vectoriel)]
+ DH[DataHub commun] --> DC[(ClickHouse)]
+ end
+ G --> W & FC & AL & AQ & US & AC & DH
+ M -. enregistrement / heartbeat .-> E
+ K -. JWT validé aussi par services .-> M
+ AC -->|OpenFeign| W & FC & AQ & US
+ W & FC & AQ & US & AC -->|événements| R[RabbitMQ]
+ R --> AL & DH
+ AL -->|AlertRaised| R
+ subgraph D[Docker Compose — cible après validation]
+ K
+ G
+ E
+ C
+ M
+ R
+ end

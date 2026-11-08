@@ -1,0 +1,12 @@
+classDiagram
+class ForecastRun {
+  +UUID id
+  +String cityCode
+  +Instant  issuedAt
+}
+class ForecastHour {
+  +Instant validAt
+  +Double rainMm
+  +Double apparentC
+}
+ForecastRun "1" --> "*" ForecastHour : contient

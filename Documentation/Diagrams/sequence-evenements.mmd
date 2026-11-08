@@ -1,0 +1,24 @@
+sequenceDiagram
+ participant F as Forecast
+ participant DB as forecast_db
+ participant Q as RabbitMQ
+ participant A as Alert
+ participant AD as alert_db
+ participant U as User
+ participant H as DataHub
+ F->>DB: Transaction version + outbox
+ F->>Q: ForecastUpdated(eventId)
+ Q-->>F: Publisher confirm
+ par File Alert
+  Q->>A: Nouvelle version
+  A->>AD: Vérifier inbox et calculer règle
+  A->>U: Lire consentement autorisé
+  U-->>A: Préférence actuelle
+  A->>AD: Transaction alerte + inbox
+  A-->>Q: ACK après écriture
+ and File DataHub
+  Q->>H: Copie de la nouvelle version
+  H->>H: Historiser et contrôler sans doublon
+  H-->>Q: ACK après écriture
+ end
+ Note over Q,H: Retry borné puis quarantaine, rejeu avec eventId stable

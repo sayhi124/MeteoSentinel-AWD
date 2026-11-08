@@ -1,0 +1,15 @@
+sequenceDiagram
+ actor U as Utilisateur
+ participant G as Gateway
+ participant A as Activity
+ participant Q as Qdrant
+ participant W as Weather/Forecast/AirQuality
+ U->>G: POST /api/activities/search (texte + contraintes)
+ G->>A: JWT validé, requête
+ A->>A: Embedding (modèle/version figés)
+ A->>Q: top-k + filtre catalogue
+ Q-->>A: candidats et similarité sémantique
+ A->>W: OpenFeign (ville, plage temporelle)
+ W-->>A: données datées et provenance
+ A->>A: contraintes numériques puis classement expliqué
+ A-->>U: résultats ou 503 si données indispensables absentes

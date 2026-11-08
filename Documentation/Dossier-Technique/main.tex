@@ -1,0 +1,531 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=22mm]{geometry}
+\usepackage{graphicx,textcomp}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\begin{document}
+\clearpage
+\section*{Architecture proposée  --  Validation 1}
+
+Frontend React  vers  Spring Cloud Gateway  vers  sept services métier Spring Boot. Eureka est l'annuaire des instances. Config Server fournit configuration centralisée, sans secrets dans Git. Keycloak gère OIDC/PKCE et émet les JWT ; Gateway et services valident signature, émetteur, expiration, audience puis les autorisations du métier. Keycloak ne fait pas transiter chaque requête métier. Les bases sont exclusives, une par service, avec credentials et réseaux isolés.\par
+
+Spring Boot 3.5.16 / Java 17 / Spring Cloud 2025.0.1. Ces versions Boot/Cloud appartiennent à la même ligne compatible : https://spring.io/projects/spring-cloud/ . OpenFeign pour les contrats REST ; RabbitMQ pour les événements ; Docker Compose pour l'environnement cible.\par
+
+\subsection*{Services, bases et responsables}
+
+- Weather : Nour Maroufi  --  PostgreSQL, weather\_db.\par
+- Forecast : Dhia Borzli  --  MongoDB, forecast\_db.\par
+- Alert : Mohamed Hedi Bejaoui  --  Redis, alert\_db.\par
+- Air Quality : Kaouther Halouti  --  MySQL, air\_quality\_db.\par
+- User : Ahmed Ben Mahmoud  --  MariaDB, user\_db.\par
+- Activity : Mohamed Aziz Sayhi  --  Qdrant (vectoriel), activity\_db.\par
+- DataHub : Toute l'équipe  --  ClickHouse, datahub\_db.\par
+
+\subsection*{Technologie avancée}
+
+Activity utilise la recherche vectorielle Qdrant ; DataHub commun utilise ClickHouse pour la traçabilité et l'évaluation des données. Le document nomme explicitement le rôle avancé du service commun. Ces technologies apportent une recherche sémantique et de l'analytique, sans présenter un modèle ML entraîné comme réalisé.\par
+
+\subsection*{Écart à faire confirmer}
+
+E2 de la grille mentionne « quatre microservices et le microservice 5 ». L'équipe compte six étudiants ; la proposition conserve six services individuels et un DataHub commun pour que chacun possède une capacité métier, conformément au rendu détaillé. Le nombre de services et la désignation du service avancé commun doivent être confirmés par l'enseignant. La fiche de notation fournie n'a que quatre colonnes étudiantes ; ne pas en déduire une validation implicite du groupe de six.\par
+
+\subsection*{Ce qui fonctionne au stade S4}
+
+Les dix processus Spring Boot démarrent ; Config Server, Eureka et Gateway sont réels ; les routes /design exposent l'état de conception. Chaque service possède ses propres modèles et configuration de base prévue. Le portail React affiche les statuts réels des /design. Aucun catalogue vectoriel, métier météo, notification, broker ni base hétérogène n'est prétendu opérationnel en mode local. Le profil secure est codé ; la stack Docker nécessite une vérification ultérieure car Docker n'est pas installé sur la machine de préparation.\par
+\clearpage
+\section*{Sujet et périmètre}
+
+MétéoSentinel aide un utilisateur à choisir une activité et un créneau à l'échelle d'une ville en croisant météo, prévisions, qualité de l'air et préférences. Un sportif, une association ou un étudiant compare des créneaux expliqués. Le système ne remplace pas une vigilance officielle et ne calcule pas un itinéraire.\par
+
+\subsection*{User stories et critères de recette}
+
+\subsection*{US-1  --  Visiteur}
+
+Je souhaite consulter la météo et l'AQI d'une ville.\par
+
+Recette : la source, l'heure et l'échelle AQI sont visibles ; indisponible ne vaut pas zéro.\par
+
+\subsection*{US-2  --  Utilisateur}
+
+Je souhaite chercher une activité selon mes centres d'intérêt.\par
+
+Recette : la similarité sémantique a un modèle/version documentés et les raisons sont affichées.\par
+
+\subsection*{US-3  --  Utilisateur}
+
+Je souhaite comparer des créneaux de 1 à 4 heures.\par
+
+Recette : aucune fenêtre ne traverse une heure manquante ; seuils météo explicités.\par
+
+\subsection*{US-4  --  Utilisateur}
+
+Je souhaite gérer préférences et consentement.\par
+
+Recette : le serveur lie /me à mon identité ; le retrait cesse les futures notifications.\par
+
+\subsection*{US-5  --  Utilisateur}
+
+Je souhaite comprendre une alerte.\par
+
+Recette : classe, facteurs dominants, version de règle et date des données sont visibles.\par
+
+\subsection*{US-6  --  Administrateur}
+
+Je souhaite contrôler qualité et erreurs des prévisions.\par
+
+Recette : les références sont typées observation/réanalyse et les métriques séparées par horizon.\par
+
+\subsection*{Périmètre réaliste}
+
+MVP après validation : trois villes tunisiennes, météo actuelle, 48 heures de prévision, un indice AQI documenté, catalogue limité, trois activités et alertes dans l'application. Hors périmètre initial : SMS, routage GPS, entraînement de modèle ML, promesse sanitaire. La recherche vectorielle utilise un modèle existant figé ; l'évaluation du modèle et son ingestion restent à développer.\par
+\clearpage
+\section*{Communications et pannes}
+
+\subsection*{REST / OpenFeign}
+
+Frontend  vers  Gateway  vers  Activity. Activity appelle Weather, Forecast, Air Quality et User via OpenFeign et découverte Eureka. Alert consulte ces mêmes contrats au besoin. Données : cityCode, plage temporelle, subject autorisé, contraintes, valeurs météo/AQI avec unités et provenance. Timeout connexion 2s, lecture 4s, aucun retry implicite sur commande non idempotente. Budgets agrégés et parallélisation à valider au développement. JWT transmis uniquement vers les services autorisés et identité /me contrôlée ; ce relais métier est prévu, non implémenté dans les stubs.\par
+
+Qdrant est consulté uniquement par Activity : embedding du texte utilisateur, filtre catalogue et recherche top-k ; les contraintes météo restent numériques. Le modèle d'embedding et sa dimension sont versionnés. DataHub n'appelle aucune base métier.\par
+
+\subsection*{RabbitMQ}
+
+Exchange durable topic meteo.events. Une file par consommateur : alert.events, datahub.events. Routage par type/version, schéma d'événement commun, publisher confirms. Outbox transactionnelle pour SQL ; mécanisme propre Mongo/Redis/Qdrant à concevoir et valider (transaction Mongo en replica set, stream Redis, tâche d'ingestion reprise). Ne pas prétendre à une transaction atomique générique entre des moteurs hétérogènes et RabbitMQ.\par
+
+Message : eventId, eventType, schemaVersion=1, producer, occurredAt UTC, aggregateId, correlationId, payload ; pas de mot de passe ni données personnelles inutiles. Les consommateurs acquittent après traitement durable, retry exponentiel borné (3), puis file de quarantaine. Rejeu manuel tracé. Aucun « exactly once » annoncé : livraison au moins une fois et effets idempotents.\par
+
+\subsection*{Matrice}
+
+Producteur / Appelants REST / Événements / Consommateurs\par
+Weather / Activity, Alert / WeatherUpdated / Alert, DataHub\par
+Forecast / Activity, Alert / ForecastUpdated / Alert, DataHub\par
+Air Quality / Activity, Alert / AirQualityUpdated / Alert, DataHub\par
+User / Activity, Alert / PreferencesChanged, ConsentWithdrawn / Alert, DataHub (payload minimisé)\par
+Activity / Frontend via Gateway / RecommendationComputed / DataHub\par
+Alert / Frontend via Gateway / AlertRaised, AlertAcknowledged / DataHub\par
+DataHub / Administrateur via Gateway / aucun obligatoire /  -- \par
+
+\subsection*{Pannes}
+
+503 si dépendance indispensable absente ; données périmées signalées avec date et source ; pas de score inventé. Gateway renvoie 503 s'il n'existe pas d'instance disponible. Config Server requis au démarrage ; instance déjà démarrée conserve sa configuration chargée. Eureka est un annuaire, pas le chemin des messages métier. Keycloak indisponible empêche une nouvelle connexion ; un JWT existant peut être validé localement avec des clés en cache dans sa période de validité. Pas de désactivation automatique de sécurité. Si DataHub est absent, les files conservent les événements jusqu'à la limite de rétention monitorée.\par
+\clearpage
+\section*{Weather  --  Nour Maroufi}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Acquérir et historiser les conditions météo courantes.. Propriété exclusive : weather\_db ; moteur PostgreSQL. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Snapshots horodatés, ville, coordonnées, température, vent, humidité, fournisseur, fetchedAt, qualityFlags.\par
+
+PostgreSQL : contraintes, index ville/date et transactions pour snapshots et outbox. Aucune lecture interbase.\par
+
+Modèle logique : WeatherSnapshot(id UUID PK, cityCode, fetchedAt, source); WeatherReading(snapshotId FK, temperatureC, windKmh, humidityPct).\par
+
+\subsection*{API prévue}
+
+GET /api/weather/\{city\}  vers  200,400,404,503 ; GET /api/weather/\{city\}/history  vers  200,400.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/weather/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Produit WeatherUpdated ; appelé par Activity et Alert ; aucune dépendance métier synchrone sortante.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : API fournisseur : timeout 2s/4s ; cache au plus 30 minutes signalé avec sa date ; 503 si aucune donnée exploitable.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/weather-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi PostgreSQL ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Nour Maroufi. Mon service Weather gère acquérir et historiser les conditions météo courantes. Je possède weather\_db sous PostgreSQL, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{Forecast  --  Dhia Borzli}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Servir les prévisions horaires et préserver leurs versions.. Propriété exclusive : forecast\_db ; moteur MongoDB. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Runs immuables de prévision, heures imbriquées, issuedAt si disponible, fetchedAt, variable, horizon, provenance.\par
+
+MongoDB : document ForecastRun avec tableau hours ; index unique ville/source/version, TTL seulement sur caches, jamais sur références évaluées.\par
+
+Modèle logique : ForecastRun(\_id, cityCode, issuedAt?, fetchedAt, source, hours:[\{validAt,temperatureC,windKmh,rainMm,rainProbabilityPct\}]).\par
+
+\subsection*{API prévue}
+
+GET /api/forecasts/\{city\}  vers  200,400,404,503 ; GET /api/forecasts/\{city\}/runs  vers  200,400.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/forecasts/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Produit ForecastUpdated ; appelé par Activity et Alert ; DataHub reçoit les versions.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : Timeout fournisseur, cache étiqueté ; 503 si heures manquantes indispensables ; aucune interpolation silencieuse.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/forecast-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi MongoDB ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Dhia Borzli. Mon service Forecast gère servir les prévisions horaires et préserver leurs versions. Je possède forecast\_db sous MongoDB, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{Alert  --  Mohamed Hedi Bejaoui}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Classifier les situations et gérer le cycle de vie des alertes.. Propriété exclusive : alert\_db ; moteur Redis. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Règles versionnées, abonnements consentis, alertes actives, clé de déduplication et état d'acquittement.\par
+
+Redis : ensembles et hashes pour état actif/TTL et contrôle atomique de doublons. AOF activé, rétention explicite ; archive durable des changements par événement vers DataHub. Limite : sans archive acquittée, ne pas purger.\par
+
+Modèle logique : rule:\{id\} HASH ; subscription:\{subject\}:\{id\} HASH ; alert:\{id\} HASH ; dedup:\{eventId\}:\{ruleVersion\} STRING SET NX ; user-alerts:\{subject\} ZSET.\par
+
+\subsection*{API prévue}
+
+GET /api/alerts/me  vers  200,401 ; POST /api/alerts/subscriptions  vers  201,400,401,409 ; PATCH /api/alerts/\{id\}/ack  vers  200,401,403,404.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/alerts/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Consomme WeatherUpdated / ForecastUpdated / AirQualityUpdated ; appelle Weather, Forecast, Air Quality, User via OpenFeign ; produit AlertRaised / AlertAcknowledged.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : Retry borné, file de quarantaine ; aucune nouvelle classe rassurante si données manquantes ; conserver état inconnu/stale et informer le client.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/alert-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi Redis ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Mohamed Hedi Bejaoui. Mon service Alert gère classifier les situations et gérer le cycle de vie des alertes. Je possède alert\_db sous Redis, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{Air Quality  --  Kaouther Halouti}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Fournir la pollution prévue et son indice documenté.. Propriété exclusive : air\_quality\_db ; moteur MySQL. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Mesures modélisées AQI avec échelle documentée, PM2.5, PM10, ozone, date de validité et provenance CAMS/Open-Meteo.\par
+
+MySQL : séries structurées, contraintes et index ville/validAt. AQI européen conservé comme indice fournisseur ; ne pas le présenter comme classe officielle du projet.\par
+
+Modèle logique : AirQualitySnapshot(id UUID PK, cityCode, validAt, fetchedAt, source); PollutantReading(snapshotId FK, europeanAqi, pm25, pm10, ozone).\par
+
+\subsection*{API prévue}
+
+GET /api/air-quality/\{city\}  vers  200,400,404,503 ; GET /api/air-quality/\{city\}/history  vers  200,400.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/air-quality/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Produit AirQualityUpdated ; appelé par Activity et Alert ; DataHub consomme les événements.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : 503 si fournisseur indisponible et pas de cache frais ; indice absent distinct de zéro ; timeouts et contrôle de cohérence des unités.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/air-quality-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi MySQL ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Kaouther Halouti. Mon service Air Quality gère fournir la pollution prévue et son indice documenté. Je possède air\_quality\_db sous MySQL, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{User  --  Ahmed Ben Mahmoud}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Gérer profils métier, villes favorites et consentements.. Propriété exclusive : user\_db ; moteur MariaDB. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Profil applicatif indexé par subject Keycloak, préférences, favoris, consentement versionné et date de retrait. Aucun mot de passe.\par
+
+MariaDB : relations profil/préférences/favoris, transactions et contraintes d'unicité. Même famille SQL que MySQL mais instance et credentials distincts.\par
+
+Modèle logique : UserProfile(subject VARCHAR PK, displayName, consentVersion, consentAt); Preference(subject FK, activityType, maxWind, maxAqi); FavoriteCity(subject FK, cityCode).\par
+
+\subsection*{API prévue}
+
+GET /api/users/me  vers  200,401,404 ; PUT /api/users/me/preferences  vers  200,400,401 ; DELETE /api/users/me/consent  vers  204,401.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/users/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Appelé par Activity et Alert avec identité ou rôle de service contrôlé ; produit PreferencesChanged / ConsentWithdrawn.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : Profil indisponible : pas de personnalisation silencieuse. 503 ; accès /me lié au sub du JWT. Retrait de consentement prioritaire et propagé.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/user-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi MariaDB ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Ahmed Ben Mahmoud. Mon service User gère gérer profils métier, villes favorites et consentements. Je possède user\_db sous MariaDB, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{Activity  --  Mohamed Aziz Sayhi}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Classer les créneaux selon météo, air et préférences.. Propriété exclusive : activity\_db ; moteur Qdrant (vectoriel). Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Catalogue d'activités et embeddings sémantiques avec modèle/dimension/version ; payload explicatif ; candidats et contexte météo utilisés à la requête.\par
+
+Qdrant : recherche vectorielle filtrée sur catalogue d'activités. Le vecteur compare préférences/descriptions ; les contraintes météo/AQI sont contrôlées ensuite sur les données numériques. Aucun score vectoriel présenté comme une probabilité de sécurité.\par
+
+Modèle logique : Collection activity\_catalog : point UUID, vector[384] normalisé avec modèle paraphrase-multilingual-MiniLM-L12-v2 version figée, payload \{activityCode,title,description,embeddingVersion,minAge?,tags\}. Dimension/modèle à vérifier avant ingestion, toute migration utilise une nouvelle collection. Les résultats météo ne sont pas stockés comme vérité vectorielle.\par
+
+\subsection*{API prévue}
+
+POST /api/activities/search  vers  200,400,401,503 ; POST /api/activities/recommendations  vers  200,400,401,422,503.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/activities/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Appelle Weather, Forecast, Air Quality et User via OpenFeign ; recherche Qdrant via client HTTP interne ; produit RecommendationComputed (identité pseudonymisée). Appelé par frontend via Gateway.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : Dépendance indispensable indisponible : 503 sans classement. Qdrant indisponible : recherche catalogue indisponible, aucune similarité inventée. Une activité choisie explicitement pourra être évaluée sans recherche si validé au contrat.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/activity-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi Qdrant (vectoriel) ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Mohamed Aziz Sayhi. Mon service Activity gère classer les créneaux selon météo, air et préférences. Je possède activity\_db sous Qdrant (vectoriel), pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{DataHub  --  Toute l'équipe}
+
+\subsection*{I1  --  Responsabilité et frontière métier}
+
+Historiser les événements et produire des rapports de qualité et d'évaluation.. Propriété exclusive : datahub\_db ; moteur ClickHouse. Aucun accès direct d'un autre service à cette base.\par
+
+\subsection*{Données et justification}
+
+Projections analytiques d'événements, provenance, contrôles de qualité, versions de prévision et références temporelles. Pas de données de profil directement identifiantes.\par
+
+ClickHouse : stockage en colonnes et agrégats par ville/date/horizon sur événements append-only. Déduplication logique par eventId via ReplacingMergeTree et lecture FINAL/argMax pour les rapports ; pas de garantie d'unicité OLTP.\par
+
+Modèle logique : EventLog(eventId UUID, eventType, occurredAt, source, aggregateId, schemaVersion, payload, receivedAt) ENGINE ReplacingMergeTree(receivedAt) ORDER BY eventId ; ForecastEvaluation(runId, validAt, horizonHours, variable, referenceKind, absError).\par
+
+\subsection*{API prévue}
+
+GET /api/datahub/quality  vers  200,400,401 ; GET /api/datahub/forecast-errors  vers  200,400,401,422 ; GET /api/datahub/events  vers  200,400,401.\par
+
+Ces URI décrivent la cible à développer après validation. Seuls /api/datahub/design et Actuator sont réellement servis en S4. Les autres chemins du service renvoient 501. Réponses d'erreur structurées, validation de l'identité et des entrées à implémenter avec le métier.\par
+
+\subsection*{I2  --  Appelants, appelés et échanges}
+
+Commun à toute l'équipe ; consomme WeatherUpdated / ForecastUpdated / AirQualityUpdated / AlertRaised / PreferencesChanged / RecommendationComputed ; aucun accès direct aux autres bases.\par
+
+Synchrone OpenFeign : réponse immédiate nécessaire à la recommandation ou à la personnalisation. Charge utile : ville, dates, unités, provenance et horodatage ; préférences minimales. Asynchrone RabbitMQ : découpler ingestion, classification et analyse, sans bloquer une lecture utilisateur. Chaque événement suit event-envelope-v1.schema.json.\par
+
+Panne : Acquittement RabbitMQ après écriture réussie ; redélivrance et déduplication logique, retry borné et quarantaine ; aucun rapport « complet » si des événements manquent.\par
+
+\subsection*{I3  --  Projet et contribution}
+
+Projet Java 17/Spring Boot indépendant dans Backend/datahub-service. Modèles de conception Java, interfaces Feign le cas échéant, configuration centralisée et tests du contrat de squelette. Le profil local démarre sans bases externes ; aucune connexion métier n'est revendiquée. Le profil databases prépare le moteur prévu ; Docker reste à vérifier sur une machine équipée.\par
+
+Le responsable doit relire, modifier et committer personnellement sa fiche, son modèle et ses contrats sur sa propre branche. Les commits de génération ne prouvent pas sa contribution. Présenter son service soi-même est indispensable : sinon I1 à I3 valent zéro selon la grille.\par
+
+\subsection*{I4  --  Questions à savoir expliquer}
+
+1. Quelle capacité métier possèdes-tu ? Pourquoi ces données ne sont-elles pas dans le service voisin ?\par
+2. Pourquoi ClickHouse ? Quelle limite de ce choix accepter et comment la traiter ?\par
+3. Qui t'appelle, qui appelles-tu, avec quelles données et quels timeouts ?\par
+4. Que se passe-t-il si un appel échoue ou si un événement arrive deux fois ?\par
+5. Quelle différence entre Gateway, Eureka, Config Server et Keycloak ?\par
+
+\subsection*{Exposé individuel  --  40 secondes}
+
+« Je suis Toute l'équipe. Mon service DataHub gère historiser les événements et produire des rapports de qualité et d'évaluation. Je possède datahub\_db sous ClickHouse, pour les raisons de mon modèle. Je montre le diagramme et les URI prévus, puis un appel synchrone ou un événement pertinent. En cas de panne, l'état incomplet est explicite. Le projet compile et démarre, mais le métier sera développé après validation. »\par
+\clearpage
+\section*{Organisation Git et suivi}
+
+Branche d'intégration main, branches feature/weather, feature/forecast, feature/alert, feature/air-quality, feature/user, feature/activity, feature/datahub. Une PR par changement, revue par un autre étudiant, Maven verify obligatoire en CI. Les commits initiaux sont une préparation assistée ; ils ne représentent pas des contributions personnelles des six membres.\par
+
+Chaque responsable : cloner, créer sa branche, relire sa fiche et le modèle Java, modifier réellement un contrat ou une justification, lancer Maven, committer sous sa propre identité et ouvrir une PR. Ne pas changer l'auteur d'un commit pour simuler une contribution. Tous participent au service commun DataHub et aux revues.\par
+
+Outil de gestion retenu : GitHub Issues + jalons + labels par service. Un ticket contient responsable attendu, critères de recette et statut via labels todo, in-progress, review, done. Les comptes GitHub des coéquipiers n'étant pas fournis, aucune invitation ni assignation de compte supposé. Un tableau Kanban local est fourni dans TASKS.md ; aucun GitHub Project inexistant n'est revendiqué.\par
+
+\subsection*{Planning}
+
+S4 : revue des frontières, modèles, APIs, nombre de services, bases et soutenance de conception. Après validation : S5 squelettes/bases et ingestion ; S6 OpenFeign et contrats ; S7 RabbitMQ et reprise ; S8 sécurité et consentement ; S9 Docker et recette ; S10 soutenance finale. Planning proposé, à adapter au calendrier enseignant.\par
+
+\subsection*{Risques}
+
+Sept moteurs augmentent l'exploitation : images et configurations figées, un profil de développement par service et intégration progressive. Modèle vectoriel non évalué : jeu de requêtes de pertinence relu par l'équipe avant l'intégration. API externe : cache daté et limites de débit. Données manquantes : réponse explicite. Authentification : JWT validé côté Gateway et service. Commits tardifs et parole déséquilibrée : chaque membre relit sa partie et répète.\par
+\clearpage
+\section*{Audit critère par critère  --  Validation 1}
+
+Source : grille fournie le 08/11/2026. Ce document ne prédit pas une note et distingue supports préparés, vérifications et exigences humaines.\par
+
+Code / Points / État / Preuve / action\par
+E1 / 2 / Documents préparés / Analyse-Fonctionnelle.md : problème, acteurs, US-1 à US-6, recettes et périmètre réaliste.\par
+E2 / 2 / À confirmer en séance / Services/*.md : capacités séparées, justification. Le libellé 4+1 de la grille diffère de l'équipe de six ; proposition 6+1 à valider.\par
+E3 / 2 / Conception préparée / Architecture.md, Interactions.md et fiches : 7 bases exclusives, OpenFeign/RabbitMQ, raisons et pannes. Connexions métier non réalisées.\par
+E4 / 2 / Conception et infrastructure préparées / Diagramme global : React, Gateway, Eureka, Config Server, Keycloak, bases, Docker. Démarrage local vérifié séparément ; Docker non vérifié.\par
+E5 / 2 / Partiel tant que contributions absentes / Structure complète, projets et README. Dépôt public et tickets à vérifier après publication ; chaque étudiant doit encore contribuer réellement.\par
+E6 / 2 / Support et répétition à préparer / Support corrigé, plan 600 secondes. Respect effectif du temps et équilibre oral à démontrer le jour J.\par
+I1 / 3 / Fiches préparées pour les six / Modèles Java, diagrammes et fiches Services : responsabilité, entités, base justifiée, URI/méthodes/codes.\par
+I2 / 2 / Fiches préparées pour les six / Appelants/appelés, données échangées, synchrone/asynchrone, timeout, déduplication et indisponibilité.\par
+I3 / 1 / Projet préparé ; contribution personnelle en attente / 7 projets métier créés ; build et démarrage contrôlés. Aucune contribution personnelle fabriquée. Chacun doit relire, modifier et committer.\par
+I4 / 2 / Préparation seulement / Questions et réponses raisonnées dans Questions-Orales.md ; maîtrise individuelle impossible à garantir par un document.\par
+
+\subsection*{Blocages restants}
+
+- Valider le nombre de services et la qualification avancée pour le groupe de six.\par
+- Obtenir les vrais commits des six étudiants, après relecture et modification.\par
+- Tester l'accès public au dépôt, au PPTX et au diagramme depuis une session non connectée.\par
+- Répéter 10 minutes et préparer une réponse autonome par étudiant.\par
+- Le dépôt Blackboard reste manuel après revue utilisateur.\par
+
+\subsection*{Règles explicites}
+
+Absence injustifiée : 0. Service non présenté par son responsable : 0 à I1--I3. Dépôt inaccessible à la validation : 0 à E5. La grille attribue 12 points équipe et 8 points individuels.\par
+\clearpage
+\section*{Préparation aux questions individuelles}
+
+Chaque étudiant répond avec ses propres exemples, sans réciter uniquement le support.\par
+
+\subsection*{Pourquoi un contexte borné ?}
+
+Il possède une capacité métier et ses règles ; ce n'est pas un découpage par table. Weather décrit le présent, Forecast les versions futures, Activity la décision, Alert le suivi ; DataHub analyse des événements.\par
+
+\subsection*{Gateway ou Eureka ?}
+
+Le Gateway reçoit et route les requêtes. Eureka indique où sont les instances. Les requêtes métier ne passent pas par Eureka.\par
+
+\subsection*{Rôle de Config Server ?}
+
+Centraliser la configuration versionnée. Pas de mots de passe dans Git. Les secrets viennent de l'environnement. Un service peut conserver sa configuration déjà chargée si Config Server tombe.\par
+
+\subsection*{Pourquoi une base exclusive ?}
+
+Autonomie, migrations indépendantes, responsabilité claire. Les autres services utilisent API/événements, jamais ses tables. Sept moteurs ajoutent un coût de maintenance assumé dans cette proposition pédagogique.\par
+
+\subsection*{OpenFeign ou RabbitMQ ?}
+
+OpenFeign convient à une réponse immédiate pour la requête utilisateur ; RabbitMQ découple ingestion et traitements. Un événement peut être livré plusieurs fois : eventId, idempotence et reprise sont nécessaires.\par
+
+\subsection*{Pourquoi Qdrant ?}
+
+Recherche de similarité sémantique sur le catalogue d'activités. Le modèle, sa dimension et sa version sont figés ; les contraintes météo sont ensuite évaluées numériquement. La similarité n'est pas un score de sécurité.\par
+
+\subsection*{Redis suffit-il pour Alert ?}
+
+État actif, TTL et déduplication atomique sont adaptés. AOF, sauvegarde et archive d'événements sont nécessaires ; une panne ou une perte de message ne doit pas effacer silencieusement une alerte.\par
+
+\subsection*{Comment éviter les doublons ClickHouse ?}
+
+eventId stable, moteur ReplacingMergeTree et lecture agrégée dédupliquée. Les fusions sont éventuelles ; ne pas revendiquer une contrainte unique OLTP.\par
+
+\subsection*{Keycloak ou User Service ?}
+
+Keycloak gère identité et mots de passe ; User conserve profil applicatif, préférences et consentement. Le JWT est validé puis les autorisations métier sont appliquées.\par
+
+\subsection*{Quel est l'état réel du code ?}
+
+Squelettes compilables, services démarrables, configuration et découverte réelles. Les endpoints métier renvoient 501 ; aucun système météo ou vectoriel achevé n'est annoncé.\par
+
+\subsection*{Comment évaluer une prévision ?}
+
+Aligner validAt, variable, unités, horizon et version, puis comparer à une référence datée indépendante. Réanalyse et station ne sont pas équivalentes. Pas de précision inventée.\par
+
+\subsection*{Que faire en panne ?}
+
+Timeout borné, 503 si donnée indispensable absente ; cache daté si contrat le permet ; états unknown/stale. Jamais de météo inventée ni de désactivation de sécurité.\par
+\end{document}

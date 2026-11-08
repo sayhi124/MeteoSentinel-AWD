@@ -1,0 +1,12 @@
+classDiagram
+class AlertRule {
+  +UUID id
+  +String ruleVersion
+  +Double threshold
+}
+class WeatherAlert {
+  +UUID id
+  +AlertLevel level
+  +AlertStatus status
+}
+AlertRule "1" --> "*" WeatherAlert : contient

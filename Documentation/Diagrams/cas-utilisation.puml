@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+actor Visiteur
+actor "Utilisateur connecté" as User
+actor Administrateur
+rectangle MeteoSentinel {
+ usecase "Consulter météo et prévisions" as UC1
+ usecase "Consulter la qualité de l’air" as UC2
+ usecase "Comparer une activité" as UC3
+ usecase "Gérer favoris et préférences" as UC4
+ usecase "Configurer ses alertes" as UC5
+ usecase "Administrer règles et qualité" as UC6
+}
+Visiteur --> UC1
+Visiteur --> UC2
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+Administrateur --> UC6
+@enduml
