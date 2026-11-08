@@ -70,3 +70,7 @@ Tous les membres doivent modifier et committer personnellement après relecture 
 ## Sources et transparence
 
 Consignes Blackboard transmises par l’utilisateur et deux PDFs dans Documentation/Sources. Conversation partagée utilisée comme contexte secondaire, sans remplacer la grille. Préparation assistée par Codex ; illustration conceptuelle de couverture créée avec ImageGen, rendue en PNG, sans modèle 3D manipulable. L’équipe relit, corrige et déclare cette assistance selon les règles du module. Aucun résultat de précision ML ni garantie sanitaire annoncé.
+
+## État de vérification du rendu
+
+Le dépôt est public, les fichiers de présentation et le diagramme sont accessibles sans authentification, et les vérifications Maven/React réussissent dans GitHub Actions. Les sept tickets de revue sont dans [Issues](https://github.com/sayhi124/MeteoSentinel-AWD/issues). [Texte de dépôt Blackboard](Documentation/Blackboard-Rendu.txt). Aucun dépôt Blackboard réalisé.

@@ -1,0 +1,31 @@
+S4 — Rendu Validation 1 : Présentation et dépôt Git
+
+Nom du projet : MétéoSentinel
+
+Lien du dépôt Git public :
+https://github.com/sayhi124/MeteoSentinel-AWD
+
+Membres de l’équipe :
+- Nour Maroufi
+- Dhia Borzli
+- Mohamed Hedi Bejaoui
+- Kaouther Halouti
+- Ahmed Ben Mahmoud
+- Mohamed Aziz Sayhi
+
+Lien vers la présentation PowerPoint :
+https://github.com/sayhi124/MeteoSentinel-AWD/blob/main/Documentation/Presentation/MeteoSentinel-Validation1.pptx
+
+Lien vers la présentation PDF (lecture directe) :
+https://github.com/sayhi124/MeteoSentinel-AWD/blob/main/Documentation/Presentation/MeteoSentinel-Validation1.pdf
+
+Lien vers le diagramme d’architecture globale :
+https://github.com/sayhi124/MeteoSentinel-AWD/blob/main/Documentation/Diagrams/architecture-globale.png
+
+Principaux diagrammes du projet :
+https://github.com/sayhi124/MeteoSentinel-AWD/tree/main/Documentation/Diagrams
+
+Dossier technique :
+https://github.com/sayhi124/MeteoSentinel-AWD/blob/main/Documentation/Dossier-Technique.pdf
+
+Périmètre : conception S4 et projets Spring Boot initialisés, compilables et démarrables. Le métier sera développé après validation. Six services individuels et DataHub commun proposés ; confirmation du nombre de services pour le groupe de six à obtenir en séance.

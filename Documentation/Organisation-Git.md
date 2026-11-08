@@ -13,3 +13,7 @@ S4 : revue des frontières, modèles, APIs, nombre de services, bases et soutena
 ## Risques
 
 Sept moteurs augmentent l’exploitation : images et configurations figées, un profil de développement par service et intégration progressive. Modèle vectoriel non évalué : jeu de requêtes de pertinence relu par l’équipe avant l’intégration. API externe : cache daté et limites de débit. Données manquantes : réponse explicite. Authentification : JWT validé côté Gateway et service. Commits tardifs et parole déséquilibrée : chaque membre relit sa partie et répète.
+
+## État vérifié du dépôt
+
+Dépôt public : https://github.com/sayhi124/MeteoSentinel-AWD . Sept tickets sont ouverts, un par service, avec labels et jalon Validation 1. La CI Maven et React a réussi sur GitHub. Les contributions personnelles des coéquipiers restent à réaliser.

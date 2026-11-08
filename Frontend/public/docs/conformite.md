@@ -8,7 +8,7 @@ Source : grille fournie le 08/11/2026. Ce document ne prédit pas une note et di
 |E2|2|À confirmer en séance|Services/*.md : capacités séparées, justification. Le libellé 4+1 de la grille diffère de l’équipe de six ; proposition 6+1 à valider.|
 |E3|2|Conception préparée|Architecture.md, Interactions.md et fiches : 7 bases exclusives, OpenFeign/RabbitMQ, raisons et pannes. Connexions métier non réalisées.|
 |E4|2|Conception et infrastructure préparées|Diagramme global : React, Gateway, Eureka, Config Server, Keycloak, bases, Docker. Démarrage local vérifié séparément ; Docker non vérifié.|
-|E5|2|Partiel tant que contributions absentes|Structure complète, projets et README. Dépôt public et tickets à vérifier après publication ; chaque étudiant doit encore contribuer réellement.|
+|E5|2|Partiel tant que contributions absentes|Structure complète, projets et README. Dépôt GitHub public, 7 tickets et accès non authentifié aux livrables vérifiés le 08/11/2026 ; chaque étudiant doit encore contribuer réellement.|
 |E6|2|Support et répétition à préparer|Support corrigé, plan 600 secondes. Respect effectif du temps et équilibre oral à démontrer le jour J.|
 |I1|3|Fiches préparées pour les six|Modèles Java, diagrammes et fiches Services : responsabilité, entités, base justifiée, URI/méthodes/codes.|
 |I2|2|Fiches préparées pour les six|Appelants/appelés, données échangées, synchrone/asynchrone, timeout, déduplication et indisponibilité.|
@@ -19,7 +19,7 @@ Source : grille fournie le 08/11/2026. Ce document ne prédit pas une note et di
 
 - Valider le nombre de services et la qualification avancée pour le groupe de six.
 - Obtenir les vrais commits des six étudiants, après relecture et modification.
-- Tester l’accès public au dépôt, au PPTX et au diagramme depuis une session non connectée.
+- Accès public au dépôt, au PPTX/PDF et au diagramme vérifié sans authentification ; à recontrôler le jour de la validation.
 - Répéter 10 minutes et préparer une réponse autonome par étudiant.
 - Le dépôt Blackboard reste manuel après revue utilisateur.
 

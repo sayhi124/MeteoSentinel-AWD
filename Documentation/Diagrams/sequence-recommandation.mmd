@@ -8,10 +8,10 @@ sequenceDiagram
  participant AQ as AirQuality
  participant US as User
  U->>FE: Ville, activité et durée
- FE->>GW: GET /api/activities/recommendations + JWT si connecté
+ FE->>GW: POST /api/activities/recommendations + JWT
  GW->>A: Requête routée
  par Prévisions
-  A->>F: GET /api/forecast/{city}/hourly
+  A->>F: GET /api/forecasts/{city}
   F-->>A: Version et heures
  and Météo courante
   A->>W: GET /api/weather/{city}
