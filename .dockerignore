@@ -1,0 +1,6 @@
+.git
+**/target
+Frontend/node_modules
+.run
+.env
+.tools

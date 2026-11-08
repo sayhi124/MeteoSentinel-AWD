@@ -1,0 +1,48 @@
+server:
+  port: 8217
+  address: ${BIND_ADDRESS:127.0.0.1}
+spring:
+  application:
+    name: datahub-service
+  profiles:
+    default: local
+  config:
+    import: "configserver:${CONFIG_SERVER_URL:http://127.0.0.1:8889}"
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+    dynamic: false
+security:
+  issuer: ${OIDC_ISSUER:http://localhost:8088/realms/meteosentinel}
+  jwk-set-uri: ${OIDC_JWKS:http://localhost:8088/realms/meteosentinel/protocol/openid-connect/certs}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://127.0.0.1:8762/eureka/}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    ip-address: ${SERVICE_IP:127.0.0.1}
+    lease-renewal-interval-in-seconds: 10
+management:
+  health:
+    rabbit:
+      enabled: false
+    mongo:
+      enabled: false
+    redis:
+      enabled: false
+    db:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  info:
+    env:
+      enabled: true
+info:
+  stage: Validation 1 — squelette de conception
+  service: datahub-service
+  businessImplemented: false

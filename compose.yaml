@@ -1,0 +1,477 @@
+{
+  "name": "meteosentinel-validation1",
+  "services": {
+    "weather-db": {
+      "image": "postgres:17-alpine",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_DB": "weather_db",
+        "POSTGRES_USER": "weather",
+        "POSTGRES_PASSWORD": "${WEATHER_DB_PASSWORD:?required}"
+      },
+      "volumes": [
+        "weather-data:/var/lib/postgresql/data"
+      ]
+    },
+    "forecast-db": {
+      "image": "mongo:8.0",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "MONGO_INITDB_ROOT_USERNAME": "forecast",
+        "MONGO_INITDB_ROOT_PASSWORD": "${FORECAST_DB_PASSWORD:?required}"
+      },
+      "volumes": [
+        "forecast-data:/data/db"
+      ]
+    },
+    "alert-db": {
+      "image": "redis:7.4-alpine",
+      "networks": [
+        "backend"
+      ],
+      "volumes": [
+        "alert-data:/data"
+      ],
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${ALERT_DB_PASSWORD:?required}"
+      ]
+    },
+    "air-quality-db": {
+      "image": "mysql:8.4",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "MYSQL_DATABASE": "air_quality_db",
+        "MYSQL_USER": "airquality",
+        "MYSQL_PASSWORD": "${AIR_DB_PASSWORD:?required}",
+        "MYSQL_ROOT_PASSWORD": "${AIR_ROOT_PASSWORD:?required}"
+      },
+      "volumes": [
+        "air-data:/var/lib/mysql"
+      ]
+    },
+    "user-db": {
+      "image": "mariadb:11.4",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "MARIADB_DATABASE": "user_db",
+        "MARIADB_USER": "appuser",
+        "MARIADB_PASSWORD": "${USER_DB_PASSWORD:?required}",
+        "MARIADB_ROOT_PASSWORD": "${USER_ROOT_PASSWORD:?required}"
+      },
+      "volumes": [
+        "user-data:/var/lib/mysql"
+      ]
+    },
+    "activity-db": {
+      "image": "qdrant/qdrant:v1.15.5",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "QDRANT__SERVICE__API_KEY": "${ACTIVITY_DB_API_KEY:?required}"
+      },
+      "volumes": [
+        "activity-data:/qdrant/storage"
+      ]
+    },
+    "datahub-db": {
+      "image": "clickhouse/clickhouse-server:25.8",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "CLICKHOUSE_DB": "datahub_db",
+        "CLICKHOUSE_USER": "datahub",
+        "CLICKHOUSE_PASSWORD": "${DATAHUB_DB_PASSWORD:?required}",
+        "CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT": "1"
+      },
+      "volumes": [
+        "datahub-data:/var/lib/clickhouse"
+      ]
+    },
+    "rabbitmq": {
+      "image": "rabbitmq:4.1-management-alpine",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "RABBITMQ_DEFAULT_USER": "meteosentinel",
+        "RABBITMQ_DEFAULT_PASS": "${RABBITMQ_PASSWORD:?required}"
+      },
+      "volumes": [
+        "rabbit-data:/var/lib/rabbitmq"
+      ]
+    },
+    "keycloak-db": {
+      "image": "postgres:17-alpine",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "POSTGRES_DB": "keycloak",
+        "POSTGRES_USER": "keycloak",
+        "POSTGRES_PASSWORD": "${KEYCLOAK_DB_PASSWORD:?required}"
+      },
+      "volumes": [
+        "keycloak-data:/var/lib/postgresql/data"
+      ]
+    },
+    "keycloak": {
+      "image": "quay.io/keycloak/keycloak:26.4.1",
+      "networks": [
+        "backend"
+      ],
+      "environment": {
+        "KC_BOOTSTRAP_ADMIN_USERNAME": "admin",
+        "KC_BOOTSTRAP_ADMIN_PASSWORD": "${KEYCLOAK_ADMIN_PASSWORD:?required}",
+        "KC_DB": "postgres",
+        "KC_DB_URL": "jdbc:postgresql://keycloak-db:5432/keycloak",
+        "KC_DB_USERNAME": "keycloak",
+        "KC_DB_PASSWORD": "${KEYCLOAK_DB_PASSWORD:?required}",
+        "KC_HOSTNAME": "http://localhost:8088"
+      },
+      "volumes": [
+        "./Backend/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro"
+      ],
+      "command": [
+        "start-dev",
+        "--import-realm"
+      ],
+      "ports": [
+        "127.0.0.1:8088:8080"
+      ],
+      "depends_on": [
+        "keycloak-db"
+      ]
+    },
+    "weather-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "weather-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "weather-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "DB_URL": "jdbc:postgresql://weather-db:5432/weather_db",
+        "DB_USER": "weather",
+        "DB_PASSWORD": "${WEATHER_DB_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "weather-db",
+        "rabbitmq"
+      ]
+    },
+    "forecast-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "forecast-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "forecast-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "MONGODB_URI": "mongodb://forecast:${FORECAST_DB_PASSWORD}@forecast-db:27017/forecast_db?authSource=admin"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "forecast-db",
+        "rabbitmq"
+      ]
+    },
+    "alert-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "alert-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "alert-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "REDIS_HOST": "alert-db",
+        "REDIS_PASSWORD": "${ALERT_DB_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "alert-db",
+        "rabbitmq"
+      ]
+    },
+    "air-quality-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "air-quality-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "air-quality-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "DB_URL": "jdbc:mysql://air-quality-db:3306/air_quality_db",
+        "DB_USER": "airquality",
+        "DB_PASSWORD": "${AIR_DB_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "air-quality-db",
+        "rabbitmq"
+      ]
+    },
+    "user-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "user-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "user-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "DB_URL": "jdbc:mariadb://user-db:3306/user_db",
+        "DB_USER": "appuser",
+        "DB_PASSWORD": "${USER_DB_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "user-db",
+        "rabbitmq"
+      ]
+    },
+    "activity-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "activity-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "activity-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "DATABASE_URL": "http://activity-db:6333",
+        "DATABASE_API_KEY": "${ACTIVITY_DB_API_KEY}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "activity-db",
+        "rabbitmq"
+      ]
+    },
+    "datahub-service": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "datahub-service"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "datahub-service",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}",
+        "DATABASE_URL": "http://datahub-db:8123",
+        "DATABASE_API_KEY": "${DATAHUB_DB_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak",
+        "datahub-db",
+        "rabbitmq"
+      ]
+    },
+    "eureka-server": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "eureka-server"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "eureka-server",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure"
+    },
+    "config-server": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "config-server"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "config-server",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure"
+    },
+    "api-gateway": {
+      "build": {
+        "context": ".",
+        "args": {
+          "MODULE": "api-gateway"
+        }
+      },
+      "environment": {
+        "BIND_ADDRESS": "0.0.0.0",
+        "SERVICE_IP": "api-gateway",
+        "EUREKA_URL": "http://eureka-server:8762/eureka/",
+        "CONFIG_SERVER_URL": "http://config-server:8889",
+        "SPRING_PROFILES_ACTIVE": "secure,databases",
+        "OIDC_ISSUER": "http://localhost:8088/realms/meteosentinel",
+        "OIDC_JWKS": "http://keycloak:8080/realms/meteosentinel/protocol/openid-connect/certs",
+        "SPRING_RABBITMQ_HOST": "rabbitmq",
+        "SPRING_RABBITMQ_USERNAME": "meteosentinel",
+        "SPRING_RABBITMQ_PASSWORD": "${RABBITMQ_PASSWORD}"
+      },
+      "networks": [
+        "backend"
+      ],
+      "restart": "on-failure",
+      "depends_on": [
+        "eureka-server",
+        "config-server",
+        "keycloak"
+      ],
+      "ports": [
+        "127.0.0.1:8180:8180"
+      ]
+    }
+  },
+  "volumes": {
+    "weather-data": {},
+    "forecast-data": {},
+    "alert-data": {},
+    "air-data": {},
+    "user-data": {},
+    "activity-data": {},
+    "datahub-data": {},
+    "rabbit-data": {},
+    "keycloak-data": {}
+  },
+  "networks": {
+    "backend": {
+      "driver": "bridge"
+    }
+  }
+}

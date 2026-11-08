@@ -1,0 +1,4 @@
+design:
+  database:
+    url: ${DATABASE_URL}
+    api-key: ${DATABASE_API_KEY:}

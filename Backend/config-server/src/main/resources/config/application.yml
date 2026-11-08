@@ -1,0 +1,14 @@
+design:
+  stage: VALIDATION_1
+  business-approved: false
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 4000
+      httpclient:
+        hc5:
+          enabled: true

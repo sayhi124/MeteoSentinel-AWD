@@ -1,0 +1,12 @@
+**/target/
+.run/
+data/
+.env
+*.log
+*.zip
+.tools/private/
+
+Frontend/node_modules/
+.tools/
+.build*/
+

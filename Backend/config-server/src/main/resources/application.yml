@@ -1,0 +1,18 @@
+server:
+  port: 8889
+  address: ${BIND_ADDRESS:127.0.0.1}
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,47 @@
+{
+  "realm": "meteosentinel",
+  "enabled": true,
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "student"
+      },
+      {
+        "name": "admin"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "meteosentinel-web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8180/*",
+        "http://127.0.0.1:8180/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8180",
+        "http://127.0.0.1:8180"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "meteosentinel-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ]
+}

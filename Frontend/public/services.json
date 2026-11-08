@@ -1,0 +1,65 @@
+[
+  {
+    "id": "weather-service",
+    "name": "Weather",
+    "owner": "Nour Maroufi",
+    "database": "weather_db",
+    "engine": "PostgreSQL",
+    "purpose": "Acquérir et historiser les conditions météo courantes.",
+    "path": "weather"
+  },
+  {
+    "id": "forecast-service",
+    "name": "Forecast",
+    "owner": "Dhia Borzli",
+    "database": "forecast_db",
+    "engine": "MongoDB",
+    "purpose": "Servir les prévisions horaires et préserver leurs versions.",
+    "path": "forecasts"
+  },
+  {
+    "id": "alert-service",
+    "name": "Alert",
+    "owner": "Mohamed Hedi Bejaoui",
+    "database": "alert_db",
+    "engine": "Redis",
+    "purpose": "Classifier les situations et gérer le cycle de vie des alertes.",
+    "path": "alerts"
+  },
+  {
+    "id": "air-quality-service",
+    "name": "Air Quality",
+    "owner": "Kaouther Halouti",
+    "database": "air_quality_db",
+    "engine": "MySQL",
+    "purpose": "Fournir la pollution prévue et son indice documenté.",
+    "path": "air-quality"
+  },
+  {
+    "id": "user-service",
+    "name": "User",
+    "owner": "Ahmed Ben Mahmoud",
+    "database": "user_db",
+    "engine": "MariaDB",
+    "purpose": "Gérer profils métier, villes favorites et consentements.",
+    "path": "users"
+  },
+  {
+    "id": "activity-service",
+    "name": "Activity",
+    "owner": "Mohamed Aziz Sayhi",
+    "database": "activity_db",
+    "engine": "Qdrant (vectoriel)",
+    "purpose": "Classer les créneaux selon météo, air et préférences.",
+    "path": "activities"
+  },
+  {
+    "id": "datahub-service",
+    "name": "DataHub",
+    "owner": "Toute l’équipe",
+    "database": "datahub_db",
+    "engine": "ClickHouse",
+    "purpose": "Historiser les événements et produire des rapports de qualité et d’évaluation.",
+    "path": "datahub"
+  }
+]
