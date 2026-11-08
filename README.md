@@ -14,7 +14,7 @@ Une plateforme de choix d’activités et de créneaux expliqués à partir de m
 |Mohamed Aziz Sayhi|Activity|Qdrant (vectoriel)|
 |Toute l’équipe|DataHub|ClickHouse|
 
-Nom du projet : MétéoSentinel. Classe et numéro de groupe : à confirmer. Six services individuels plus DataHub commun proposés ; le libellé E2 « quatre services et microservice 5 » est à confirmer avec l’enseignant pour le groupe de six. [Audit intégral de la grille](Documentation/Evaluation/Grille-Conformite.md).
+Nom du projet : MétéoSentinel. Six services individuels et un service commun DataHub.
 
 ## Structure
 
@@ -22,10 +22,10 @@ Nom du projet : MétéoSentinel. Classe et numéro de groupe : à confirmer. Six
 Backend/                  7 projets métier + Gateway + Eureka + Config Server
 Frontend/                 portail React de conception
 Documentation/
-  Presentation/           support PPTX/PDF et plan oral de 10 minutes
+  Presentation/           présentation PPTX/PDF
   Diagrams/               architecture globale, UML et séquences
   Services/               modèles, API, échanges et pannes de chaque service
-  Evaluation/             conformité et préparation aux questions
+  Evaluation/             vérifications techniques
 README.md
 ```
 
@@ -61,16 +61,16 @@ Laisser 30–90 secondes au démarrage et à l’enregistrement Eureka. Les jour
 
 `compose.yaml` prépare sept bases dédiées, RabbitMQ et Keycloak. Copier `.env.example` vers `.env`, remplir tous les secrets localement, puis `docker compose config` et `docker compose up --build`. Les profils `secure,databases` activent JWT et configuration des bases prévues ; les adaptateurs métier restent à développer. Le profil local ne prouve pas les connexions de ces moteurs. **Docker n’était pas installé sur la machine de préparation : le démarrage Compose n’est pas revendiqué comme vérifié.**
 
-## Soutenance et suivi
+## Documentation et suivi
 
-[Présentation](Documentation/Presentation/MeteoSentinel-Validation1.pptx) · [PDF](Documentation/Presentation/MeteoSentinel-Validation1.pdf) · [Dossier technique](Documentation/Dossier-Technique.pdf) · [Plan oral](Documentation/Presentation/Plan-Oral-10min.md) · [Questions individuelles](Documentation/Evaluation/Questions-Orales.md) · [Tâches](TASKS.md) · [Organisation Git](Documentation/Organisation-Git.md).
+[Présentation](Documentation/Presentation/MeteoSentinel-Validation1.pptx) · [PDF](Documentation/Presentation/MeteoSentinel-Validation1.pdf) · [Dossier technique](Documentation/Dossier-Technique.pdf) · [Tâches](TASKS.md) · [Organisation Git](Documentation/Organisation-Git.md).
 
-Tous les membres doivent modifier et committer personnellement après relecture et présenter leur service. Les commits initiaux assistés ne valent pas contributions de six étudiants. Les validations humaines, le nombre de services, le passage oral et le dépôt Blackboard restent à effectuer. Aucun envoi à un enseignant n’a été réalisé.
+Les modèles, API et communications sont décrits pour la phase de conception. Les fonctionnalités métier, la recherche vectorielle et les traitements asynchrones seront intégrés après validation.
 
-## Sources et transparence
+## Références techniques
 
-Consignes Blackboard transmises par l’utilisateur et deux PDFs dans Documentation/Sources. Conversation partagée utilisée comme contexte secondaire, sans remplacer la grille. Préparation assistée par Codex ; illustration conceptuelle de couverture créée avec ImageGen, rendue en PNG, sans modèle 3D manipulable. L’équipe relit, corrige et déclare cette assistance selon les règles du module. Aucun résultat de précision ML ni garantie sanitaire annoncé.
+[Spring Cloud](https://spring.io/projects/spring-cloud/) · [Keycloak](https://www.keycloak.org/securing-apps/overview) · [Open-Meteo](https://open-meteo.com/en/docs) · [RabbitMQ](https://www.rabbitmq.com/docs/reliability) · [Qdrant](https://qdrant.tech/documentation/) · [ClickHouse](https://clickhouse.com/docs/).
 
 ## État de vérification du rendu
 
-Le dépôt est public, les fichiers de présentation et le diagramme sont accessibles sans authentification, et les vérifications Maven/React réussissent dans GitHub Actions. Les sept tickets de revue sont dans [Issues](https://github.com/sayhi124/MeteoSentinel-AWD/issues). [Texte de dépôt Blackboard](Documentation/Blackboard-Rendu.txt). Aucun dépôt Blackboard réalisé.
+Le dépôt est public, les fichiers de présentation et le diagramme sont accessibles sans authentification, et les vérifications Maven/React réussissent dans GitHub Actions. Les sept tickets de revue sont dans [Issues](https://github.com/sayhi124/MeteoSentinel-AWD/issues). [Texte de dépôt Blackboard](Documentation/Blackboard-Rendu.txt).

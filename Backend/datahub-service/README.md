@@ -4,7 +4,7 @@ Responsable : **Toute l’équipe**. Base exclusive prévue : `datahub_db`.
 
 Historiser les événements et produire des rapports de qualité et d’évaluation.
 
-Projet Spring Boot initialisé pour I3. Ce squelette compile et démarre ; le métier renvoie volontairement 501 jusqu’à validation de conception. Modèles Java dans `src/main/java/tn/esprit/meteosentinel/model`. Contrats, base justifiée, API, interlocuteurs et pannes : [fiche individuelle](../../Documentation/Services/datahub-service.md).
+Projet Spring Boot initialisé. Ce squelette compile et démarre ; le métier renvoie volontairement 501 jusqu’à validation de conception. Modèles Java dans `src/main/java/tn/esprit/meteosentinel/model`. Contrats, base justifiée, API, interlocuteurs et pannes : [fiche individuelle](../../Documentation/Services/datahub-service.md).
 
 Port local : 8217. GET `/actuator/health` et `/api/datahub/design`. Lancement depuis la racine avec `scripts/start.ps1`.
 

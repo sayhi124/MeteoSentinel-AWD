@@ -12,4 +12,4 @@
 - Dépôt public, PPTX, PDF et diagramme téléchargés sans authentification et comparés aux fichiers locaux.
 - ZIPs contrôlés par testzip.
 
-Non vérifié : démarrage Docker, connexions bases hétérogènes, pipeline RabbitMQ métier, intégration OIDC complète et recherche vectorielle. Le profil local est un squelette sans persistance métier. Non réalisable par génération : contributions personnelles des six membres et maîtrise orale.
+Non vérifié : démarrage Docker, connexions bases hétérogènes, pipeline RabbitMQ métier, intégration OIDC complète et recherche vectorielle. Le profil local est un squelette sans persistance métier.

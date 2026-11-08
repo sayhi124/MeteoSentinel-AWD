@@ -4,7 +4,7 @@ Responsable : **Kaouther Halouti**. Base exclusive prévue : `air_quality_db`.
 
 Fournir la pollution prévue et son indice documenté.
 
-Projet Spring Boot initialisé pour I3. Ce squelette compile et démarre ; le métier renvoie volontairement 501 jusqu’à validation de conception. Modèles Java dans `src/main/java/tn/esprit/meteosentinel/model`. Contrats, base justifiée, API, interlocuteurs et pannes : [fiche individuelle](../../Documentation/Services/air-quality-service.md).
+Projet Spring Boot initialisé. Ce squelette compile et démarre ; le métier renvoie volontairement 501 jusqu’à validation de conception. Modèles Java dans `src/main/java/tn/esprit/meteosentinel/model`. Contrats, base justifiée, API, interlocuteurs et pannes : [fiche individuelle](../../Documentation/Services/air-quality-service.md).
 
 Port local : 8214. GET `/actuator/health` et `/api/air-quality/design`. Lancement depuis la racine avec `scripts/start.ps1`.
 

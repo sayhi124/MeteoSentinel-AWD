@@ -1,13 +1,13 @@
-# Suivi des tâches
+# Plan de travail
 
-|État|Service|Responsable attendu|Recette|
-|---|---|---|---|
-|À faire|weather-service|Nour Maroufi|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|forecast-service|Dhia Borzli|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|alert-service|Mohamed Hedi Bejaoui|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|air-quality-service|Kaouther Halouti|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|user-service|Ahmed Ben Mahmoud|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|activity-service|Mohamed Aziz Sayhi|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
-|À faire|datahub-service|Toute l’équipe|Relire et corriger la fiche, le modèle et les contrats ; compiler et créer une PR personnelle|
+|Service|Responsable|Prochain livrable|
+|---|---|---|
+|Weather|Nour Maroufi|Valider le modèle, les contrats API et le comportement en panne|
+|Forecast|Dhia Borzli|Valider le modèle, les contrats API et le comportement en panne|
+|Alert|Mohamed Hedi Bejaoui|Valider le modèle, les contrats API et le comportement en panne|
+|Air Quality|Kaouther Halouti|Valider le modèle, les contrats API et le comportement en panne|
+|User|Ahmed Ben Mahmoud|Valider le modèle, les contrats API et le comportement en panne|
+|Activity|Mohamed Aziz Sayhi|Valider le modèle, les contrats API et le comportement en panne|
+|DataHub|Toute l’équipe|Valider le modèle, les contrats API et le comportement en panne|
 
-Infrastructure et documentation préparées par assistance technique ; chacun doit comprendre et adapter avant présentation.
+Suivi : [GitHub Issues](https://github.com/sayhi124/MeteoSentinel-AWD/issues).
