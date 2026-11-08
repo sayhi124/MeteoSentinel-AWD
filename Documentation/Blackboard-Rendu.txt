@@ -28,4 +28,4 @@ https://github.com/sayhi124/MeteoSentinel-AWD/tree/main/Documentation/Diagrams
 Dossier technique :
 https://github.com/sayhi124/MeteoSentinel-AWD/blob/main/Documentation/Dossier-Technique.pdf
 
-Périmètre : conception S4 et projets Spring Boot initialisés, compilables et démarrables. Le métier sera développé après validation. Six services individuels et DataHub commun proposés ; confirmation du nombre de services pour le groupe de six à obtenir en séance.
+Périmètre : conception S4 et projets Spring Boot initialisés, compilables et démarrables. Le métier sera développé après validation. Six services individuels et un service commun DataHub.

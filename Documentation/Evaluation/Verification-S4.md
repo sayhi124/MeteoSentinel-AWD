@@ -7,7 +7,7 @@
 - Gateway atteint les 7 routes /design ; routes métier renvoient 501.
 - Frontend React : npm build réussi, audit npm sans vulnérabilités signalées au moment de l’installation.
 - GitHub Actions : compilation/tests Java et build React réussis.
-- PowerPoint : 21 slides, plan de 600 secondes, validation de structure et réimport réussi ; pas de débordement géométrique détecté.
+- PowerPoint : 21 slides, validation de structure et réimport réussi ; pas de débordement géométrique détecté.
 - PDFs vérifiés visuellement ; source LaTeX compilée avec succès.
 - Dépôt public, PPTX, PDF et diagramme téléchargés sans authentification et comparés aux fichiers locaux.
 - ZIPs contrôlés par testzip.
