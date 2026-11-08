@@ -29,7 +29,7 @@
   {
     "id": "air-quality-service",
     "name": "Air Quality",
-    "owner": "Kaouther Halouti",
+    "owner": "Kaouther Nalouti",
     "database": "air_quality_db",
     "engine": "MySQL",
     "purpose": "Fournir la pollution prévue et son indice documenté.",

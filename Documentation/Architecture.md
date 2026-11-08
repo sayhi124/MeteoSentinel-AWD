@@ -9,7 +9,7 @@ Spring Boot 3.5.16 / Java 17 / Spring Cloud 2025.0.1. Ces versions Boot/Cloud ap
 - Weather : Nour Maroufi — **PostgreSQL**, `weather_db`.
 - Forecast : Dhia Borzli — **MongoDB**, `forecast_db`.
 - Alert : Mohamed Hedi Bejaoui — **Redis**, `alert_db`.
-- Air Quality : Kaouther Halouti — **MySQL**, `air_quality_db`.
+- Air Quality : Kaouther Nalouti — **MySQL**, `air_quality_db`.
 - User : Ahmed Ben Mahmoud — **MariaDB**, `user_db`.
 - Activity : Mohamed Aziz Sayhi — **Qdrant (vectoriel)**, `activity_db`.
 - DataHub : Toute l’équipe — **ClickHouse**, `datahub_db`.

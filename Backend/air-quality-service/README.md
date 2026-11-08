@@ -1,6 +1,6 @@
 # Air Quality Service
 
-Responsable : **Kaouther Halouti**. Base exclusive prévue : `air_quality_db`.
+Responsable : **Kaouther Nalouti**. Base exclusive prévue : `air_quality_db`.
 
 Fournir la pollution prévue et son indice documenté.
 

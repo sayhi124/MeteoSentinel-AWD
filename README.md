@@ -9,7 +9,7 @@ Une plateforme de choix d’activités et de créneaux expliqués à partir de m
 |Nour Maroufi|Weather|PostgreSQL|
 |Dhia Borzli|Forecast|MongoDB|
 |Mohamed Hedi Bejaoui|Alert|Redis|
-|Kaouther Halouti|Air Quality|MySQL|
+|Kaouther Nalouti|Air Quality|MySQL|
 |Ahmed Ben Mahmoud|User|MariaDB|
 |Mohamed Aziz Sayhi|Activity|Qdrant (vectoriel)|
 |Toute l’équipe|DataHub|ClickHouse|

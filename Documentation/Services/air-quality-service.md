@@ -1,4 +1,4 @@
-# Air Quality — Kaouther Halouti
+# Air Quality — Kaouther Nalouti
 
 ## Responsabilité et frontière métier
 
