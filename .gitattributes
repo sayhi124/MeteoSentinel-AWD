@@ -1,0 +1,18 @@
+* text=auto
+*.pdf binary
+*.pptx binary
+*.png binary
+*.jpg binary
+*.zip binary
+*.sh text eol=lf
+*.java text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.mmd text eol=lf
+*.tex text eol=lf
